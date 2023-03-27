@@ -1,3 +1,8 @@
+###########################################
+# Realized by: Sebastiano Oliani
+# 26/03/2023
+###########################################
+
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
@@ -35,7 +40,7 @@ if __name__ == "__main__":
 
 
     if part == "a":
-        e = 0.5
+        e = 0.5 # real params == estimate params
         if subpart == "1":
             L = 2
             p = 0.5
@@ -52,10 +57,10 @@ if __name__ == "__main__":
         p_hat = p
     elif part == "b":
         L = 2
-        e_hat = 0.5
+        e_hat = 0.5 # real parameters
         p_hat = 0.55
         if subpart == "1":
-            e = 0.5
+            e = 0.5 # estimates of the parameters
             p = 0.45
         elif subpart == "2":
             e = 0.5
@@ -70,6 +75,10 @@ if __name__ == "__main__":
             e = 0.45
             p = 0.55
     
+    print('\nSensor distance:', L)
+    print('\nProbability of the noise associated to the model:', p_hat)
+    print('\nProbability of the noise associated to the measurements:', e_hat, '\n')
+
     # enumerate state space X
     N = 100
     
@@ -78,7 +87,7 @@ if __name__ == "__main__":
     # prior PDF
     akk_1 = np.zeros((1, N))
 
-    print("\nInitialization!\n")
+    print("\nInitialization ...\n")
     # x0 is uniformly distributed on X = {0 ... N-1}
     akk[0, :] = 1 / N
 
@@ -90,7 +99,7 @@ if __name__ == "__main__":
     # measurement vector
     z = np.zeros_like(x)
 
-    print("\nRecursion\n")
+    print("\nRecursion ...\n")
     for i in range(1, N + 1):
         # prior update
         for j in range(N):
@@ -113,20 +122,20 @@ if __name__ == "__main__":
             akk[i, :] = akk[i, :] / sum
         else:
             akk[i, :] = akk[0, :]
-            print(f"\nRe-initializing estimator at time step {i}")
+            print(f"\nRe-initializing estimator at time step {i}!")
     
-    print("\nEstimation ended\n")
+    print("\nEstimation ended!\n")
 
     print("\nVisualization\n")
     # Visualize the results
     fig = plt.figure()
-    ax = plt.axes(projection="3d")
+    ax = plt.axes(projection = "3d")
     ax.set_xlabel("POSITION $x(k)/N$ ")
     ax.set_ylabel("TIME STEP $k$")
     X = np.arange(0, N) / N
     Y = np.arange(0, N + 1)
     X, Y = np.meshgrid(X, Y)
-    ax.plot_surface(X, Y, akk, rstride=1, cstride=1, cmap=cm.coolwarm)
+    ax.plot_surface(X, Y, akk, rstride = 1, cstride = 1, cmap = cm.coolwarm)
     ax.plot3D(
         x / N,
         np.arange(0, N + 1),
