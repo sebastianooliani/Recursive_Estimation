@@ -15,8 +15,9 @@ if __name__ == "__main__":
     eig = np.linalg.eig(A)
     for i in range(len(eig)):
         if eig[0][i] >= 0:
-            print(eig[0][i])
-            print("Unstable system!")
+            # print(eig[0][i])
+            print("Unstable system!\n")
+            break
 
     # Process noise variance: user input
     print("Choose process noise variance to run:")
@@ -57,6 +58,7 @@ if __name__ == "__main__":
         z[:, k] = H @ x[:, k] + w[:, k]
 
     ## KALMAN FILTER IMPLEMENTATION
+    ## time-varying Kalman filter
     x_p = np.zeros((16, N + 1))
     x_m = np.zeros((16, N + 1))
     x_m[:, 0] = np.squeeze(np.zeros((16, 1)))
@@ -67,17 +69,26 @@ if __name__ == "__main__":
     for i in range(1, N + 1):
         # prior update
         x_p[:, i] = A @ x_m[:, i - 1]
-        P_p[:, :, i] = A @ P_m[:, :, i - 1] @ np.transpose(A) + Q
+        P_p[:, :, i] = A @ P_m[:, :, i - 1] @ A.T + Q
         # measurement update
-        P_m[:, :, i] = np.linalg.inv(np.linalg.inv(P_p[:, :, i]) + np.transpose(H) @ np.linalg.inv(V) @ H)
-        x_m[:, i] = x_p[:, i] + P_m[:, :, i] @ np.transpose(H) @ np.linalg.inv(V) @ (z[:, i] - H @ x_p[:, i])
+        P_m[:, :, i] = np.linalg.inv(np.linalg.inv(P_p[:, :, i]) + H.T @ np.linalg.inv(V) @ H)
+        x_m[:, i] = x_p[:, i] + P_m[:, :, i] @ H.T @ np.linalg.inv(V) @ (z[:, i] - H @ x_p[:, i])
+
+    ## steady-state Kalman filter
+    P_inf = scipy.linalg.solve_discrete_are(A.T, H.T, Q, V)
+    K_inf = P_inf @ H.T @ np.linalg.inv(H @ P_inf @ H.T + V)
+    x_ss = np.zeros((16, N + 1))
+    x_ss[:, 0] = np.squeeze(np.zeros((16, 1)))
+
+    for i in range(1, N + 1):
+        x_ss[:, i] = (np.identity(16) - K_inf @ H) @ A @ x_ss[:, i - 1] + K_inf @ z[:, i]
 
     # Plots
     # Select what states to plot (select 4).
     sel = [1, 2, 13, 14]
     # Estimation error
     err1 = x - x_m
-    err2 = x - x_m
+    err2 = x - x_ss
 
     fig = plt.figure()
     subfigs = fig.subfigures(1, 2, wspace=0.07)
@@ -100,7 +111,7 @@ if __name__ == "__main__":
         )
         ax.plot(
             np.arange(0, N + 1),
-            x_m[sel[i] - 1, :] / np.pi * 180,
+            x_ss[sel[i] - 1, :] / np.pi * 180,
             label="SSKF estimate",
             c="#ff7f0e",
         )
