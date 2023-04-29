@@ -12,12 +12,19 @@ if __name__ == "__main__":
     A = np.loadtxt("PS4/CubeModel_A.csv", delimiter=",")
     H = np.loadtxt("PS4/CubeModel_H.csv", delimiter=",")
 
+    # check stability
     eig = np.linalg.eig(A)
     for i in range(len(eig)):
         if eig[0][i] >= 0:
             # print(eig[0][i])
             print("Unstable system!\n")
             break
+    # check observability
+    obsv = np.vstack([H] + [H @ np.linalg.matrix_power(A, i) for i in range(1, 16)])
+    if np.linalg.matrix_rank(obsv) == 16:
+        print("System is observable!\n")
+    else:
+        print("System is not observable!\n")
 
     # Process noise variance: user input
     print("Choose process noise variance to run:")
