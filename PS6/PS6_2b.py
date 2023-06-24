@@ -1,6 +1,6 @@
 ###########################################
 # Realized by: Sebastiano Oliani
-# 24/06/2023
+# 10/05/2023
 ###########################################
 
 import numpy as np
@@ -56,11 +56,11 @@ if __name__ == "__main__":
     
     axs[0].plot(np.arange(0, N), x[0, :], 'o-')
     axs[0].plot(np.arange(0, N), x_hat[0, :])
-    axs[0].set_ylabel(f"State 1 and Estimate 1")
+    axs[0].set_ylabel(f"State and estimate 1")
 
     axs[1].plot(np.arange(0, N), x[1, :], 'o-')
     axs[1].plot(np.arange(0, N), x_hat[1, :])
-    axs[1].set_ylabel(f"State 2 and Estimate 2")    
+    axs[1].set_ylabel(f"State and estimate 2")    
 
     axs[2].plot(np.arange(0, N), e[0, :])
     axs[2].set_ylabel(f"Error state 1")
